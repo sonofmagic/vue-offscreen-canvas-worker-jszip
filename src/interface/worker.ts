@@ -1,10 +1,10 @@
 export interface HomeEventData {
   type: 'zip'
-  imgUrl: string
+  bitmap: ImageBitmap
 }
 
 export interface MainWorkerEventData {
   type: 'percent' | 'save'
   percent?: number
-  blob?: Blob
+  content?: ArrayBuffer
 }
