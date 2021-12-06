@@ -1,24 +1,14 @@
-# hello-world
+# 浏览器多线程离屏渲染压缩方案
 
-## Project setup
-```
-yarn install
-```
+## 优点:
+1. 性能更优
+2. 不阻塞主js线程
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+## 缺点:
+1. 兼容性差, 需要fallback 方案
 
-### Compiles and minifies for production
-```
-yarn build
-```
+## 降级方案:
 
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+1. 优先去除兼容性最差的OffscreenCanvas
+2. 次级去除 Worker
+3. 只使用Js主线程
