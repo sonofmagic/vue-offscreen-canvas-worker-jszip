@@ -1,9 +1,18 @@
 <template>
   <div>
     <h2>WithoutWorker</h2>
-    <button @click="download">Download</button>
-    <progress max="100" :value="percent">{{ percent }}%</progress>
-    <canvas v-show="false" ref="canvasEl"></canvas>
+    <button
+      :disabled="disabled"
+      @click="download"
+    >Download</button>
+    <progress
+      max="100"
+      :value="percent"
+    >{{ percent }}%</progress>
+    <canvas
+      v-show="false"
+      ref="canvasEl"
+    ></canvas>
   </div>
 </template>
 
@@ -11,7 +20,7 @@
 // WithoutWorker总耗时10575.50ms
 import { defineComponent, ref } from 'vue'
 import JSZip from 'jszip'
-import { TestImage } from './fixtures'
+import { BigImage as TestImage } from './fixtures'
 import { saveAs } from './util'
 
 export default defineComponent({
@@ -19,12 +28,14 @@ export default defineComponent({
   components: {},
   setup() {
     const percent = ref(0)
+    const disabled = ref(false)
     const canvasEl = ref<HTMLCanvasElement>()
 
     let t0: number
     let t1: number
 
     const download = async () => {
+      disabled.value = true
       t0 = performance.now()
       const image = new Image()
       image.src = TestImage
@@ -58,11 +69,13 @@ export default defineComponent({
       saveAs(content, 'WithoutWorker.zip')
       t1 = performance.now()
       console.log(`WithoutWorker总耗时${(t1 - t0).toFixed(2)}ms`)
+      disabled.value = false
     }
     return {
       percent,
       download,
-      canvasEl
+      canvasEl,
+      disabled
     }
   }
 })

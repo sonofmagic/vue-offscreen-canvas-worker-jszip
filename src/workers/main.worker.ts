@@ -8,37 +8,17 @@ import type {
 import JSZip from 'jszip'
 const worker: Worker = self as any
 
+// worker 中没有 Image
 function getCanvasBlob(bitmap: ImageBitmap): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    // worker 中没有 Image
-    // const image = new Image()
-    // image.src = url
-    // image.onload = () => {
     const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
     const ctx = canvas.getContext('2d') as OffscreenCanvasRenderingContext2D
-    //   // eslint-disable-next-line no-unused-expressions
-    //   ctx?.drawImage(image, 0, 0)
     ctx.drawImage(bitmap, 0, 0)
-    canvas
-      .convertToBlob()
-      .then((blob) => {
-        resolve(blob)
-      })
-      .catch(reject) // png
-    // }
-    // image.onerror = (e: Event | string) => {
-    //   reject(e)
-    // }
+    canvas.convertToBlob().then(resolve).catch(reject) // png
   })
 }
 
-async function main(bitmap: ImageBitmap) {
-  const blob = await getCanvasBlob(bitmap)
-  const event: MainWorkerResponseEventData = {
-    type: 'percent',
-    percent: 50
-  }
-  worker.postMessage(event)
+async function doZip(blob: Blob) {
   const zip = new JSZip()
   const filename = 'test.png'
   zip.file(filename, blob)
@@ -65,13 +45,26 @@ async function main(bitmap: ImageBitmap) {
   worker.postMessage(finish, [content])
 }
 
+async function main(bitmap: ImageBitmap) {
+  const blob = await getCanvasBlob(bitmap)
+  const event: MainWorkerResponseEventData = {
+    type: 'percent',
+    percent: 50
+  }
+  worker.postMessage(event)
+  await doZip(blob)
+}
+
 // Respond to message from parent thread
 worker.addEventListener(
   'message',
   (event: MessageEvent<MainWorkerRequestEventData>) => {
     const data = event.data
-    if (data.type === 'zip') {
-      main(data.bitmap)
+    if (data.type === 'main') {
+      main(data.bitmap!)
+    } else if (data.type === 'zip') {
+      const blob = new Blob([data.arraybuffer as ArrayBuffer])
+      doZip(blob)
     }
   }
 )

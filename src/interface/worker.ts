@@ -1,6 +1,7 @@
 export interface MainWorkerRequestEventData {
-  type: 'zip'
-  bitmap: ImageBitmap
+  type: 'zip' | 'main'
+  bitmap?: ImageBitmap
+  arraybuffer?: ArrayBuffer
 }
 
 export interface MainWorkerResponseEventData {
