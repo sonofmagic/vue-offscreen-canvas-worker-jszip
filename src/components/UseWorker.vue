@@ -10,7 +10,10 @@
 import { defineComponent, ref } from 'vue'
 
 import Worker from 'worker-loader!@/workers/main.worker'
-import type { MainWorkerEventData, HomeEventData } from '@/interface/worker'
+import type {
+  MainWorkerRequestEventData,
+  MainWorkerResponseEventData
+} from '@/interface/worker'
 import { TestImage } from './fixtures'
 import { saveAs } from './util'
 // UseWorker总耗时9860.20ms
@@ -22,8 +25,8 @@ export default defineComponent({
     const worker = new Worker()
     let t0: number
     let t1: number
-    worker.onmessage = (event) => {
-      const data: MainWorkerEventData = event.data
+    worker.onmessage = (event: MessageEvent<MainWorkerResponseEventData>) => {
+      const data = event.data
       // console.log(data)
       if (data.type === 'save') {
         const blob = new Blob([data.content as ArrayBuffer])
@@ -40,7 +43,7 @@ export default defineComponent({
       image.src = TestImage
       image.onload = () => {
         createImageBitmap(image).then((bitmap) => {
-          const message: HomeEventData = {
+          const message: MainWorkerRequestEventData = {
             type: 'zip',
             bitmap
           }

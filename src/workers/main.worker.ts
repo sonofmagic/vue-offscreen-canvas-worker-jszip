@@ -1,11 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="../../node_modules/@types/offscreencanvas/index.d.ts" />
 
-import type { HomeEventData, MainWorkerEventData } from '@/interface/worker'
+import type {
+  MainWorkerRequestEventData,
+  MainWorkerResponseEventData
+} from '@/interface/worker'
 import JSZip from 'jszip'
 const worker: Worker = self as any
 
-function getCanvasBlob (bitmap: ImageBitmap): Promise<Blob> {
+function getCanvasBlob(bitmap: ImageBitmap): Promise<Blob> {
   return new Promise((resolve, reject) => {
     // worker 中没有 Image
     // const image = new Image()
@@ -29,9 +32,9 @@ function getCanvasBlob (bitmap: ImageBitmap): Promise<Blob> {
   })
 }
 
-async function main (bitmap: ImageBitmap) {
+async function main(bitmap: ImageBitmap) {
   const blob = await getCanvasBlob(bitmap)
-  const event: MainWorkerEventData = {
+  const event: MainWorkerResponseEventData = {
     type: 'percent',
     percent: 50
   }
@@ -48,14 +51,14 @@ async function main (bitmap: ImageBitmap) {
       }
     },
     ({ percent }) => {
-      const event: MainWorkerEventData = {
+      const event: MainWorkerResponseEventData = {
         type: 'percent',
         percent: 50 + percent / 2
       }
       worker.postMessage(event)
     }
   )
-  const finish: MainWorkerEventData = {
+  const finish: MainWorkerResponseEventData = {
     type: 'save',
     content: content
   }
@@ -63,9 +66,12 @@ async function main (bitmap: ImageBitmap) {
 }
 
 // Respond to message from parent thread
-worker.addEventListener('message', (event) => {
-  const data: HomeEventData = event.data
-  if (data.type === 'zip') {
-    main(data.bitmap)
+worker.addEventListener(
+  'message',
+  (event: MessageEvent<MainWorkerRequestEventData>) => {
+    const data = event.data
+    if (data.type === 'zip') {
+      main(data.bitmap)
+    }
   }
-})
+)

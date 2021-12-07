@@ -1,9 +1,9 @@
-export interface HomeEventData {
+export interface MainWorkerRequestEventData {
   type: 'zip'
   bitmap: ImageBitmap
 }
 
-export interface MainWorkerEventData {
+export interface MainWorkerResponseEventData {
   type: 'percent' | 'save'
   percent?: number
   content?: ArrayBuffer
