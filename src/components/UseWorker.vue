@@ -2,27 +2,23 @@
   <div>
     <h2>UseWorker</h2>
     <button @click="download">Download</button>
-    <progress
-      max="100"
-      :value="percent"
-    >{{ percent }}%</progress>
+    <progress max="100" :value="percent">{{ percent }}%</progress>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-// eslint-disable-next-line import/no-webpack-loader-syntax
+
 import Worker from 'worker-loader!@/workers/main.worker'
-import TestImage from '@/assets/big-img.jpg'
 import type { MainWorkerEventData, HomeEventData } from '@/interface/worker'
-import { saveAs } from 'file-saver'
+import { TestImage } from './fixtures'
+import { saveAs } from './util'
 // UseWorker总耗时9860.20ms
 export default defineComponent({
   name: 'Home',
   components: {},
-  setup () {
+  setup() {
     const percent = ref(0)
-    // const canvasEl = ref<HTMLCanvasElement>()
     const worker = new Worker()
     let t0: number
     let t1: number

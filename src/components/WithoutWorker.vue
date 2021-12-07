@@ -2,10 +2,7 @@
   <div>
     <h2>WithoutWorker</h2>
     <button @click="download">Download</button>
-    <progress
-      max="100"
-      :value="percent"
-    >{{ percent }}%</progress>
+    <progress max="100" :value="percent">{{ percent }}%</progress>
     <canvas v-show="false" ref="canvasEl"></canvas>
   </div>
 </template>
@@ -14,14 +11,13 @@
 // WithoutWorker总耗时10575.50ms
 import { defineComponent, ref } from 'vue'
 import JSZip from 'jszip'
-import TestImage from '@/assets/big-img.jpg'
-
-import { saveAs } from 'file-saver'
+import { TestImage } from './fixtures'
+import { saveAs } from './util'
 
 export default defineComponent({
   name: 'Home',
   components: {},
-  setup () {
+  setup() {
     const percent = ref(0)
     const canvasEl = ref<HTMLCanvasElement>()
 
